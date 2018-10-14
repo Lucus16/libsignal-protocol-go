@@ -1,3 +1,4 @@
+// Translation of test/fingerprint/NumericFingerprintGeneratorTest.java
 package fingerprint
 
 import "github.com/Lucus16/libsignal-protocol-go/ecc"
@@ -15,29 +16,28 @@ var (
 )
 
 func TestVectors(t *testing.T) {
-	eccKey, err := ecc.DecodePublicKey(aliceIdentity)
+	alice, err := ecc.DecodePublicKey(aliceIdentity)
 	if err != nil {
 		t.Error(err)
 	}
-	aliceKey := sig.IdentityKey{eccKey}
-	eccKey, err = ecc.DecodePublicKey(bobIdentity)
+	bob, err := ecc.DecodePublicKey(bobIdentity)
 	if err != nil {
 		t.Error(err)
 	}
-	bobKey := sig.IdentityKey{eccKey}
 
 	generator := NewNumericGenerator(5200)
 	aliceFingerprint := generator.Generate(
-		"+14152222222", []sig.IdentityKey{aliceKey},
-		"+14153333333", []sig.IdentityKey{bobKey})
+		"+14152222222", []sig.IdentityKey{alice},
+		"+14153333333", []sig.IdentityKey{bob})
 	bobFingerprint := generator.Generate(
-		"+14153333333", []sig.IdentityKey{bobKey},
-		"+14152222222", []sig.IdentityKey{aliceKey})
+		"+14153333333", []sig.IdentityKey{bob},
+		"+14152222222", []sig.IdentityKey{alice})
 
 	if aliceFingerprint.DisplayableFingerprint().DisplayText() != displayableFingerprint ||
 		bobFingerprint.DisplayableFingerprint().DisplayText() != displayableFingerprint {
-		t.Errorf("Incorrect displayable fingerprint.\n%v\n%v",
+		t.Errorf("Incorrect displayable fingerprint.\n%v\n%v\n%v",
 			aliceFingerprint.DisplayableFingerprint().DisplayText(),
+			bobFingerprint.DisplayableFingerprint().DisplayText(),
 			displayableFingerprint)
 	}
 
@@ -54,5 +54,31 @@ func TestVectors(t *testing.T) {
 		!bytes.Equal(bobSerializedFingerprint, bobScannableFingerprint) {
 		t.Errorf("Incorrect scannable fingerprint.\n%x\n%x",
 			aliceSerializedFingerprint, aliceScannableFingerprint)
+	}
+}
+
+func TestMatchingFingerprints(t *testing.T) {
+	alice, err := ecc.GenerateKeyPair()
+	if err != nil {
+		t.Error(err)
+	}
+	bob, err := ecc.GenerateKeyPair()
+	if err != nil {
+		t.Error(err)
+	}
+
+	generator := NewNumericGenerator(1024)
+	aliceFingerprint := generator.Generate(
+		"+14152222222", []sig.IdentityKey{alice.PublicKey()},
+		"+14153333333", []sig.IdentityKey{bob.PublicKey()})
+	bobFingerprint := generator.Generate(
+		"+14153333333", []sig.IdentityKey{bob.PublicKey()},
+		"+14152222222", []sig.IdentityKey{alice.PublicKey()})
+
+	if aliceFingerprint.DisplayableFingerprint().DisplayText() !=
+		bobFingerprint.DisplayableFingerprint().DisplayText() {
+		t.Errorf("Expected fingerprints to match, but didn't:\n%s\n%s",
+			aliceFingerprint.DisplayableFingerprint().DisplayText(),
+			bobFingerprint.DisplayableFingerprint().DisplayText())
 	}
 }

@@ -1,3 +1,4 @@
+// Translation of devices/DeviceConsistencyCommitment.java
 package consistency
 
 import "github.com/Lucus16/libsignal-protocol-go/util"

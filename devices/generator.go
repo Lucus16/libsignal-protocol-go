@@ -1,3 +1,4 @@
+// Translation of devices/DeviceConsistencyCodeGenerator.java
 package consistency
 
 import "github.com/Lucus16/libsignal-protocol-go/fingerprint"

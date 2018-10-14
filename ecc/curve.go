@@ -3,12 +3,9 @@ package ecc
 import "github.com/Lucus16/curve25519-go"
 import "fmt"
 
-const djbType = 5
-const djbKeyLen = 0x20
-
 func GenerateKeyPair() (KeyPair, error) {
 	priv, pub, err := curve.GenerateKeyPair()
-	return KeyPair{djbPrivateKey{priv}, djbPublicKey{pub}}, err
+	return djbKeyPair{djbPrivateKey{priv}, djbPublicKey{pub}}, err
 }
 
 func DecodePublicKey(data []byte) (PublicKey, error) {

@@ -1,3 +1,4 @@
+// Translation of test/devices/DeviceConsistencyTest.java
 package consistency
 
 import "github.com/Lucus16/libsignal-protocol-go/util"
@@ -21,6 +22,7 @@ func TestConsistency(t *testing.T) {
 		sig.IdentityKey{devices[1].PublicKey()},
 		sig.IdentityKey{devices[2].PublicKey()},
 	}
+
 	commitments := make([]Commitment, 3)
 	for i := range commitments {
 		util.InsecureShuffle(keyList)
@@ -62,6 +64,7 @@ func TestConsistency(t *testing.T) {
 			receivedMessages[(i+2)%3].Signature(),
 		})
 	}
+
 	if codes[0] != codes[1] || codes[1] != codes[2] {
 		t.Errorf("Consistency codes don't match.")
 	}

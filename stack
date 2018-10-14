@@ -1,0 +1,4 @@
+Don't use public fields, every type is effectively immutable. Don't expose bytes
+slices via getters, create write methods instead.
+
+- Working on ratchet.

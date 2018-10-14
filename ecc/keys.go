@@ -13,15 +13,7 @@ type PublicKey interface {
 	VerifyVrfSignature(message []byte, signature []byte) (vrfOutput []byte, err error)
 }
 
-type KeyPair struct {
-	privateKey PrivateKey
-	publicKey  PublicKey
-}
-
-func (keyPair KeyPair) PrivateKey() PrivateKey {
-	return keyPair.privateKey
-}
-
-func (keyPair KeyPair) PublicKey() PublicKey {
-	return keyPair.publicKey
+type KeyPair interface {
+	PrivateKey() PrivateKey
+	PublicKey() PublicKey
 }

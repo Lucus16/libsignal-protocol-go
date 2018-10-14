@@ -15,11 +15,15 @@ func (v Version) iterationStartOffset() int {
 	case 3:
 		return 1
 	default:
-		panic(fmt.Sprintf("Version vserion %v does not exist"))
+		panic(fmt.Sprintf("Version %d does not exist", v))
 	}
 }
 
-func (v Version) DeriveSecrets(inputKeyMaterial, salt, info []byte, outputLength int) []byte {
+func (v Version) DeriveSecrets(inputKeyMaterial, info []byte, outputLength int) []byte {
+	return v.DeriveSaltedSecrets(inputKeyMaterial, make([]byte, hashOutputSize), info, outputLength)
+}
+
+func (v Version) DeriveSaltedSecrets(inputKeyMaterial, salt, info []byte, outputLength int) []byte {
 	prk := v.extract(salt, inputKeyMaterial)
 	return v.expand(prk, info, outputLength)
 }

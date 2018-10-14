@@ -1,3 +1,4 @@
+// Translation of devices/DeviceConsistencySignature.java
 package consistency
 
 type Signature struct {

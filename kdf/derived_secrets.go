@@ -4,9 +4,21 @@ const DerivedMessageSecretsSize = 0x50
 const DerivedRootSecretsSize = 0x40
 
 type DerivedMessageSecrets struct {
-	CipherKey  []byte
-	MacKey     []byte
-	InitVector []byte
+	cipherKey  []byte
+	macKey     []byte
+	initVector []byte
+}
+
+func (dms DerivedMessageSecrets) CipherKey() []byte {
+	return dms.cipherKey
+}
+
+func (dms DerivedMessageSecrets) MacKey() []byte {
+	return dms.macKey
+}
+
+func (dms DerivedMessageSecrets) InitVector() []byte {
+	return dms.initVector
 }
 
 func NewDerivedMessageSecrets(keys []byte) DerivedMessageSecrets {
@@ -18,8 +30,16 @@ func NewDerivedMessageSecrets(keys []byte) DerivedMessageSecrets {
 }
 
 type DerivedRootSecrets struct {
-	RootKey  []byte
-	ChainKey []byte
+	rootKey  []byte
+	chainKey []byte
+}
+
+func (drs DerivedRootSecrets) RootKey() []byte {
+	return drs.rootKey
+}
+
+func (drs DerivedRootSecrets) ChainKey() []byte {
+	return drs.chainKey
 }
 
 func NewDerivedRootSecrets(keys []byte) DerivedRootSecrets {
