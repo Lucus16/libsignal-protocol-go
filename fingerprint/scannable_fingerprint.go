@@ -1,3 +1,4 @@
+// Translation of fingerprint/ScannableFingerprint.java
 package fingerprint
 
 import "github.com/Lucus16/libsignal-protocol-go/protos"

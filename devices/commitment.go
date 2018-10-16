@@ -31,10 +31,10 @@ func NewCommitment(generation uint32, identityKeys []sig.IdentityKey) Commitment
 	}
 }
 
-func (dcc Commitment) Serialized() []byte {
-	return dcc.serialized
+func (c Commitment) Serialized() []byte {
+	return c.serialized
 }
 
-func (dcc Commitment) Generation() uint32 {
-	return dcc.generation
+func (c Commitment) Generation() uint32 {
+	return c.generation
 }

@@ -24,7 +24,7 @@ type IdentityKeyStore interface {
 	// address yet or if the key matches the key known for that address.
 	IsTrusted(address libsignal.Address, key libsignal.IdentityKey, direction Direction) bool
 
-	// Retrieve the address for a key.
+	// Retrieve the key for an address.
 	GetIdentity(address libsignal.Address) libsignal.IdentityKey
 }
 

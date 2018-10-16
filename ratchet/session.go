@@ -57,15 +57,91 @@ func Initialize(session *state.SessionStructure, params Parameters) {
 	}
 }
 
-func aliceInitialize(session *state.SessionStructure, params aliceParameters) {
+func aliceInitialize(session *state.SessionStructure, params aliceParameters) (err error) {
 	session.SessionVersion = protocol.CurrentVersion
 	session.RemoteIdentityKey = params.theirIdentityKey
 	session.LocalIdentityKey = params.ourIdentityKey.PublicKey()
 
 	sendingRatchetKey = ecc.GenerateKeyPair()
+	secrets := make([]byte)
+	secrets = append(secrets, discontinuityBytes()...)
+
+	part, err := params.ourIdentityKey().PrivateKey().CalculateAgreement(params.theirSignedPrekey)
+	if err != nil {
+		return
+	}
+	secrets = append(secrets, part)
+
+	part, err = params.ourBaseKey().PrivateKey().CalculateAgreement(params.theirIdentityKey)
+	if err != nil {
+		return
+	}
+	secrets = append(secrets, part)
+
+	part, err = params.ourBaseKey().PrivateKey().CalculateAgreement(params.theirSignedPrekey)
+	if err != nil {
+		return
+	}
+	secrets = append(secrets, part)
+
+	if params.theirOneTimePrekey != nil {
+		part, err = params.ourBaseKey().PrivateKey().CalculateAgreement(params.theirOneTimePrekey)
+		if err != nil {
+			return
+		}
+		secrets = append(secrets, part)
+	}
+
+	rootKey, chainKey := calculateDerivedKeys(secrets)
+	newRootKey, newChainKey, err := rootKey.createChain(params.theirRatchetKey, sendingRatchetKey)
+	if err != nil {
+		return
+	}
+
+	session.addReceiverChain(params.theirRatchetKey, chainKey)
+	session.setSenderChain(sendingRatchetKey, newChainKey)
+	session.RootKey = newRootKey
+	return
 }
 
-func bobInitialize(session *state.SessionStructure, params bobParameters) {
+func bobInitialize(session *state.SessionStructure, params aliceParameters) (err error) {
+	session.SessionVersion = protocol.CurrentVersion
+	session.RemoteIdentityKey = params.theirIdentityKey
+	session.LocalIdentityKey = params.ourIdentityKey.PublicKey()
+
+	secrets := make([]byte)
+	secrets = append(secrets, discontinuityBytes()...)
+
+	part, err := params.ourSignedPrekey().PrivateKey().CalculateAgreement(params.theirIdentityKey)
+	if err != nil {
+		return
+	}
+	secrets = append(secrets, part)
+
+	part, err = params.ourIdentityKey().PrivateKey().CalculateAgreement(params.theirBaseKey)
+	if err != nil {
+		return
+	}
+	secrets = append(secrets, part)
+
+	part, err = params.ourSignedPrekey().PrivateKey().CalculateAgreement(params.theirBaseKey)
+	if err != nil {
+		return
+	}
+	secrets = append(secrets, part)
+
+	if params.theirOneTimePrekey != nil {
+		part, err = params.ourBaseKey().PrivateKey().CalculateAgreement(params.theirOneTimePrekey)
+		if err != nil {
+			return
+		}
+		secrets = append(secrets, part)
+	}
+
+	rootKey, chainKey := calculateDerivedKeys(secrets)
+	session.setSenderChain(params.ourRatchetKey, chainKey)
+	session.RootKey = rootKey
+	return
 }
 
 func discontinuityBytes() (result []byte) {

@@ -6,10 +6,10 @@ type Signature struct {
 	vrfOutput []byte
 }
 
-func (dcs Signature) Signature() []byte {
-	return dcs.signature
+func (s Signature) Signature() []byte {
+	return s.signature
 }
 
-func (dcs Signature) VrfOutput() []byte {
-	return dcs.vrfOutput
+func (s Signature) VrfOutput() []byte {
+	return s.vrfOutput
 }

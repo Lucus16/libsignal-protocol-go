@@ -1,3 +1,4 @@
+// Translation of fingerprint/Fingerprint.java
 package fingerprint
 
 type Fingerprint struct {

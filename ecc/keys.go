@@ -1,3 +1,4 @@
+// Translation of ecc/EC{KeyPair,{Private,Public}Key}.java
 package ecc
 
 type PrivateKey interface {

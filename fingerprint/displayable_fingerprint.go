@@ -1,3 +1,4 @@
+// Translation of fingerprint/DisplayableFingerprint.java
 package fingerprint
 
 import "encoding/binary"

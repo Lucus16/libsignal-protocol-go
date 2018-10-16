@@ -1,3 +1,4 @@
+// Translation of ecc/DjbEC{Private,Public}Key.java
 package ecc
 
 import "github.com/Lucus16/curve25519-go"

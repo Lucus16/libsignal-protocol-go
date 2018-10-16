@@ -1,3 +1,4 @@
+// Translation of ecc/Curve.java
 package ecc
 
 import "github.com/Lucus16/curve25519-go"
@@ -6,6 +7,20 @@ import "fmt"
 func GenerateKeyPair() (KeyPair, error) {
 	priv, pub, err := curve.GenerateKeyPair()
 	return djbKeyPair{djbPrivateKey{priv}, djbPublicKey{pub}}, err
+}
+
+func NewKeyPair(privateKey PrivateKey, publicKey PublicKey) KeyPair {
+	switch typedPrivateKey := privateKey.(type) {
+	case djbPrivateKey:
+		djbPublicKey, ok := publicKey.(djbPublicKey)
+		if !ok {
+			panic(fmt.Sprintf("Key types do not match."))
+		}
+
+		return djbKeyPair{typedPrivateKey, djbPublicKey}
+	default:
+		panic(fmt.Sprintf("Unknown key type: %T", privateKey))
+	}
 }
 
 func DecodePublicKey(data []byte) (PublicKey, error) {

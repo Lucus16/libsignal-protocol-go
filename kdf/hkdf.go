@@ -1,3 +1,4 @@
+// Translation of kdf/HKDF{,v2,v3}.java
 package kdf
 
 import "crypto/sha256"
