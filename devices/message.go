@@ -1,6 +1,6 @@
 package consistency
 
-import "github.com/Lucus16/libsignal-protocol-go/protos"
+import "github.com/Lucus16/libsignal-protocol-go/protocol"
 import sig "github.com/Lucus16/libsignal-protocol-go"
 import "github.com/golang/protobuf/proto"
 
@@ -37,7 +37,7 @@ func MessageFromKeyPair(commitment Commitment, keyPair sig.IdentityKeyPair) (res
 		vrfOutput: vrfOutputBytes,
 	}
 	commitmentGeneration := commitment.Generation()
-	codeMessage := protos.DeviceConsistencyCodeMessage{
+	codeMessage := protocol.DeviceConsistencyCodeMessage{
 		Generation: &commitmentGeneration,
 		Signature:  signature.Signature(),
 	}
@@ -55,7 +55,7 @@ func MessageFromKeyPair(commitment Commitment, keyPair sig.IdentityKeyPair) (res
 }
 
 func MessageFromSerialized(commitment Commitment, serialized []byte, key sig.IdentityKey) (result Message, err error) {
-	codeMessage := &protos.DeviceConsistencyCodeMessage{}
+	codeMessage := &protocol.DeviceConsistencyCodeMessage{}
 	err = proto.Unmarshal(serialized, codeMessage)
 	if err != nil {
 		return

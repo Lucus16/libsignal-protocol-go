@@ -2,7 +2,11 @@ package ratchet
 
 import "github.com/Lucus16/libsignal-protocol-go"
 import "github.com/Lucus16/libsignal-protocol-go/ecc"
+import "github.com/Lucus16/libsignal-protocol-go/kdf"
 import "github.com/Lucus16/libsignal-protocol-go/state"
+import "github.com/Lucus16/libsignal-protocol-go/protocol"
+
+import "bytes"
 
 type Parameters struct {
 	OurBaseKey       ecc.KeyPair
@@ -32,13 +36,13 @@ type bobParameters struct {
 }
 
 func Initialize(session *state.SessionStructure, params Parameters) {
-	if isAlice(params.OurBaseKey.PublicKey(), params.TheirBaseKey.PublicKey()) {
+	if isAlice(params.OurBaseKey.PublicKey(), params.TheirBaseKey) {
 		alice := aliceParameters{
 			ourBaseKey:         params.OurBaseKey,
 			ourIdentityKey:     params.OurIdentityKey,
-			theirRatchetKey:    params.theirRatchetKey,
-			theirIdentityKey:   params.theirIdentityKey,
-			theirSignedPrekey:  params.theirBaseKey,
+			theirRatchetKey:    params.TheirRatchetKey,
+			theirIdentityKey:   params.TheirIdentityKey,
+			theirSignedPrekey:  params.TheirBaseKey,
 			theirOneTimePrekey: nil,
 		}
 
@@ -58,38 +62,43 @@ func Initialize(session *state.SessionStructure, params Parameters) {
 }
 
 func aliceInitialize(session *state.SessionStructure, params aliceParameters) (err error) {
-	session.SessionVersion = protocol.CurrentVersion
-	session.RemoteIdentityKey = params.theirIdentityKey
-	session.LocalIdentityKey = params.ourIdentityKey.PublicKey()
+	version := protocol.CurrentVersion
+	session.SessionVersion = &version
+	session.RemoteIdentityPublic = params.theirIdentityKey.Encode()
+	session.LocalIdentityPublic = params.ourIdentityKey.PublicKey().Encode()
 
-	sendingRatchetKey = ecc.GenerateKeyPair()
-	secrets := make([]byte)
+	sendingRatchetKey, err := ecc.GenerateKeyPair()
+	if err != nil {
+		return
+	}
+
+	secrets := make([]byte, 0x80)
 	secrets = append(secrets, discontinuityBytes()...)
 
-	part, err := params.ourIdentityKey().PrivateKey().CalculateAgreement(params.theirSignedPrekey)
+	part, err := params.ourIdentityKey.PrivateKey().CalculateAgreement(params.theirSignedPrekey)
 	if err != nil {
 		return
 	}
-	secrets = append(secrets, part)
+	secrets = append(secrets, part...)
 
-	part, err = params.ourBaseKey().PrivateKey().CalculateAgreement(params.theirIdentityKey)
+	part, err = params.ourBaseKey.PrivateKey().CalculateAgreement(params.theirIdentityKey)
 	if err != nil {
 		return
 	}
-	secrets = append(secrets, part)
+	secrets = append(secrets, part...)
 
-	part, err = params.ourBaseKey().PrivateKey().CalculateAgreement(params.theirSignedPrekey)
+	part, err = params.ourBaseKey.PrivateKey().CalculateAgreement(params.theirSignedPrekey)
 	if err != nil {
 		return
 	}
-	secrets = append(secrets, part)
+	secrets = append(secrets, part...)
 
 	if params.theirOneTimePrekey != nil {
-		part, err = params.ourBaseKey().PrivateKey().CalculateAgreement(params.theirOneTimePrekey)
+		part, err = params.ourBaseKey.PrivateKey().CalculateAgreement(params.theirOneTimePrekey)
 		if err != nil {
 			return
 		}
-		secrets = append(secrets, part)
+		secrets = append(secrets, part...)
 	}
 
 	rootKey, chainKey := calculateDerivedKeys(secrets)
@@ -100,55 +109,57 @@ func aliceInitialize(session *state.SessionStructure, params aliceParameters) (e
 
 	session.addReceiverChain(params.theirRatchetKey, chainKey)
 	session.setSenderChain(sendingRatchetKey, newChainKey)
-	session.RootKey = newRootKey
+	session.RootKey = newRootKey.Key()
 	return
 }
 
-func bobInitialize(session *state.SessionStructure, params aliceParameters) (err error) {
-	session.SessionVersion = protocol.CurrentVersion
-	session.RemoteIdentityKey = params.theirIdentityKey
-	session.LocalIdentityKey = params.ourIdentityKey.PublicKey()
+func bobInitialize(session *state.SessionStructure, params bobParameters) (err error) {
+	version := protocol.CurrentVersion
+	session.SessionVersion = &version
+	session.RemoteIdentityPublic = params.theirIdentityKey.Encode()
+	session.LocalIdentityPublic = params.ourIdentityKey.PublicKey().Encode()
 
-	secrets := make([]byte)
+	secrets := make([]byte, 0x80)
 	secrets = append(secrets, discontinuityBytes()...)
 
-	part, err := params.ourSignedPrekey().PrivateKey().CalculateAgreement(params.theirIdentityKey)
+	part, err := params.ourSignedPrekey.PrivateKey().CalculateAgreement(params.theirIdentityKey)
 	if err != nil {
 		return
 	}
-	secrets = append(secrets, part)
+	secrets = append(secrets, part...)
 
-	part, err = params.ourIdentityKey().PrivateKey().CalculateAgreement(params.theirBaseKey)
+	part, err = params.ourIdentityKey.PrivateKey().CalculateAgreement(params.theirBaseKey)
 	if err != nil {
 		return
 	}
-	secrets = append(secrets, part)
+	secrets = append(secrets, part...)
 
-	part, err = params.ourSignedPrekey().PrivateKey().CalculateAgreement(params.theirBaseKey)
+	part, err = params.ourSignedPrekey.PrivateKey().CalculateAgreement(params.theirBaseKey)
 	if err != nil {
 		return
 	}
-	secrets = append(secrets, part)
+	secrets = append(secrets, part...)
 
-	if params.theirOneTimePrekey != nil {
-		part, err = params.ourBaseKey().PrivateKey().CalculateAgreement(params.theirOneTimePrekey)
+	if params.ourOneTimePrekey != nil {
+		part, err = params.ourOneTimePrekey.PrivateKey().CalculateAgreement(params.theirBaseKey)
 		if err != nil {
 			return
 		}
-		secrets = append(secrets, part)
+		secrets = append(secrets, part...)
 	}
 
 	rootKey, chainKey := calculateDerivedKeys(secrets)
 	session.setSenderChain(params.ourRatchetKey, chainKey)
-	session.RootKey = rootKey
+	session.RootKey = rootKey.Key()
 	return
 }
 
 func discontinuityBytes() (result []byte) {
-	result := make([]byte, 0x20)
+	result = make([]byte, 0x20)
 	for i := range result {
 		result[i] = 0xff
 	}
+	return
 }
 
 func calculateDerivedKeys(masterSecret []byte) (rootKey RootKey, chainKey ChainKey) {
@@ -160,5 +171,5 @@ func calculateDerivedKeys(masterSecret []byte) (rootKey RootKey, chainKey ChainK
 }
 
 func isAlice(ourKey, theirKey ecc.PublicKey) bool {
-	return bytes.Compare(ourKey, theirKey) < 0
+	return bytes.Compare(ourKey.Encode(), theirKey.Encode()) < 0
 }

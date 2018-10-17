@@ -6,4 +6,5 @@ buildGoPackage {
   name = "libsignal-protocol-go";
   src = ./.;
   goPackagePath = "github.com/Lucus16/libsignal-protocol-go";
+  buildInputs = [ protobuf go-protobuf ];
 }

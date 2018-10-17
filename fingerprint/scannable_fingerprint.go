@@ -1,7 +1,6 @@
 // Translation of fingerprint/ScannableFingerprint.java
 package fingerprint
 
-import "github.com/Lucus16/libsignal-protocol-go/protos"
 import "github.com/golang/protobuf/proto"
 import "bytes"
 import "fmt"
@@ -10,7 +9,7 @@ const scannableFingerprintVersion uint32 = 1
 const fingerprintLen = 0x20
 
 type ScannableFingerprint struct {
-	protos.CombinedFingerprints
+	CombinedFingerprints
 }
 
 type VersionMismatchError struct {
@@ -26,12 +25,12 @@ func (err VersionMismatchError) Error() string {
 
 func newScannableFingerprint(localFingerprint, remoteFingerprint []byte) ScannableFingerprint {
 	version := scannableFingerprintVersion
-	return ScannableFingerprint{protos.CombinedFingerprints{
+	return ScannableFingerprint{CombinedFingerprints{
 		Version: &version,
-		LocalFingerprint: &protos.LogicalFingerprint{
+		LocalFingerprint: &LogicalFingerprint{
 			Content: localFingerprint[:fingerprintLen],
 		},
-		RemoteFingerprint: &protos.LogicalFingerprint{
+		RemoteFingerprint: &LogicalFingerprint{
 			Content: remoteFingerprint[:fingerprintLen],
 		},
 	}}

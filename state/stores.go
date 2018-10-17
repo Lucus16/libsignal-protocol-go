@@ -1,6 +1,6 @@
 package state
 
-import "github.com/Lucus16/libsignal-protocol-go"
+import sig "github.com/Lucus16/libsignal-protocol-go"
 import "github.com/Lucus16/libsignal-protocol-go/ecc"
 
 const (
@@ -18,14 +18,14 @@ type IdentityKeyStore interface {
 	LocalRegistrationID() int
 
 	// Store a contact as trusted. Return true if an identity was replaced.
-	SaveIdentity(address libsignal.Address, key libsignal.IdentityKey) (replaced bool)
+	SaveIdentity(address sig.Address, key sig.IdentityKey) (replaced bool)
 
 	// The convention is that a key is trusted if no key is known for that
 	// address yet or if the key matches the key known for that address.
-	IsTrusted(address libsignal.Address, key libsignal.IdentityKey, direction Direction) bool
+	IsTrusted(address sig.Address, key sig.IdentityKey, direction Direction) bool
 
 	// Retrieve the key for an address.
-	GetIdentity(address libsignal.Address) libsignal.IdentityKey
+	GetIdentity(address sig.Address) sig.IdentityKey
 }
 
 type PrekeyStore interface {
@@ -36,17 +36,17 @@ type PrekeyStore interface {
 }
 
 type SessionStore interface {
-	LoadSession(address libsignal.Address) SessionRecord
+	LoadSession(address sig.Address) SessionRecord
 	SubDeviceSessions(name string) []int32
-	StoreSession(address libsignal.Address, record SessionRecord)
-	ContainsSession(address libsignal.Address) bool
-	DeleteSession(address libsignal.Address)
+	StoreSession(address sig.Address, record SessionRecord)
+	ContainsSession(address sig.Address) bool
+	DeleteSession(address sig.Address)
 	DeleteAllSessions(name string)
 }
 
 type SignedPrekeyStore interface {
 	LoadSignedPrekey(id int) (ok bool, record SignedPrekeyRecord)
-	LoadAllSignedPrekeys() []SignedPreKeyRecord
+	LoadAllSignedPrekeys() []SignedPrekeyRecord
 	StoreSignedPrekey(id int, record SignedPrekeyRecord)
 	ContainsSignedPrekey(id int) bool
 	RemoveSignedPrekey(id int)

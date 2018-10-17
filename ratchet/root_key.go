@@ -18,11 +18,11 @@ func (rk RootKey) createChain(theirKey ecc.PublicKey, ourKey ecc.KeyPair) (newRo
 		return
 	}
 
-	derivedSecretBytes := rk.kdf.DeriveSaltedSecrets(sharedSecret, rk.key, []byte("WhisperRatchet"), kdf.DerivedRootSecretsSize)
-	derivedSecrets := kdf.NewDerivedRootSecrets(derivedSecretBytes)
+	derivedSecretBytes := rk.kdf.DeriveSaltedSecrets(sharedSecret, rk.key, []byte("WhisperRatchet"), kdf.RootSecretsSize)
+	rootKey, chainKey := kdf.RootSecrets(derivedSecretBytes)
 
-	newRootKey = RootKey{rk.kdf, derivedSecrets.RootKey()}
-	newChainKey = ChainKey{rk.kdf, derivedSecrets.ChainKey(), 0}
+	newRootKey = RootKey{rk.kdf, rootKey}
+	newChainKey = ChainKey{rk.kdf, chainKey, 0}
 
 	return
 }

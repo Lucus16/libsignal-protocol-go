@@ -2,7 +2,7 @@ syntax = "proto2";
 
 package libsignal;
 
-option go_package = "protos";
+option go_package = "fingerprint";
 option java_package = "org.whispersystems.libsignal.fingerprint";
 option java_outer_classname = "FingerprintProtos";
 

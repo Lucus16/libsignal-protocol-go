@@ -27,12 +27,12 @@ func (key ChainKey) NextChainKey() ChainKey {
 
 func (key ChainKey) MessageKeys() MessageKeys {
 	inputKeyMaterial := key.getBaseMaterial(messageKeySeed)
-	keyMaterialBytes := key.kdf.DeriveSecrets(inputKeyMaterial, []byte("WhisperMessageKeys"), kdf.DerivedMessageSecretsSize)
-	keyMaterial := kdf.NewDerivedMessageSecrets(keyMaterialBytes)
+	keyMaterialBytes := key.kdf.DeriveSecrets(inputKeyMaterial, []byte("WhisperMessageKeys"), kdf.MessageSecretsSize)
+	cipherKey, macKey, initVector := kdf.MessageSecrets(keyMaterialBytes)
 	return MessageKeys{
-		keyMaterial.CipherKey(),
-		keyMaterial.MacKey(),
-		keyMaterial.InitVector(),
+		cipherKey,
+		macKey,
+		initVector,
 		key.index,
 	}
 }

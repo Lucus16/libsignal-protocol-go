@@ -14,13 +14,13 @@ func TestConsistency(t *testing.T) {
 		if err != nil {
 			t.Error(err)
 		}
-		devices[i] = sig.IdentityKeyPair{device}
+		devices[i] = device
 	}
 
 	keyList := []sig.IdentityKey{
-		sig.IdentityKey{devices[0].PublicKey()},
-		sig.IdentityKey{devices[1].PublicKey()},
-		sig.IdentityKey{devices[2].PublicKey()},
+		devices[0].PublicKey(),
+		devices[1].PublicKey(),
+		devices[2].PublicKey(),
 	}
 
 	commitments := make([]Commitment, 3)
@@ -46,7 +46,7 @@ func TestConsistency(t *testing.T) {
 	receivedMessages := make([]Message, 3)
 	for i := range receivedMessages {
 		message, err := MessageFromSerialized(commitments[0], messages[i].Serialized(),
-			sig.IdentityKey{devices[i].PublicKey()})
+			devices[i].PublicKey())
 		if err != nil {
 			t.Error(err)
 		}

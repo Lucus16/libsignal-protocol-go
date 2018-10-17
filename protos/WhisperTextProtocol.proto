@@ -2,7 +2,7 @@ syntax = "proto2";
 
 package libsignal;
 
-option go_package = "protos";
+option go_package = "protocol";
 option java_package = "org.whispersystems.libsignal.protocol";
 option java_outer_classname = "SignalProtos";
 
