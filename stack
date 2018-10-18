@@ -1,7 +1,8 @@
 I need to use android studio in order to find all uses of some functions to see
 if they can be simplified.
 
-Don't use public fields, every type is effectively immutable. Don't expose bytes
-slices via getters, create write methods instead.
+Resolve ratchet imports state and state imports ratchet.
+
+Move ratchet types to a `types` package?
 
 - Working on ratchet.

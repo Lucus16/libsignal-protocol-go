@@ -2,7 +2,7 @@
 package fingerprint
 
 import "github.com/Lucus16/libsignal-protocol-go/util"
-import sig "github.com/Lucus16/libsignal-protocol-go"
+import "github.com/Lucus16/libsignal-protocol-go/types"
 import "crypto/sha512"
 
 const fingerprintVersion = 0
@@ -15,8 +15,8 @@ func NewNumericGenerator(iterations int) NumericGenerator {
 	return NumericGenerator{iterations}
 }
 
-func (gen NumericGenerator) Generate(localStableId string, localKeys []sig.IdentityKey,
-	remoteStableId string, remoteKeys []sig.IdentityKey) Fingerprint {
+func (gen NumericGenerator) Generate(localStableId string, localKeys []types.IdentityKey,
+	remoteStableId string, remoteKeys []types.IdentityKey) Fingerprint {
 	localFingerprint := getFingerprint(gen.iterations, localStableId, localKeys)
 	remoteFingerprint := getFingerprint(gen.iterations, remoteStableId, remoteKeys)
 	return Fingerprint{
@@ -25,10 +25,10 @@ func (gen NumericGenerator) Generate(localStableId string, localKeys []sig.Ident
 	}
 }
 
-func getFingerprint(iterations int, stableId string, unsortedKeys []sig.IdentityKey) []byte {
+func getFingerprint(iterations int, stableId string, unsortedKeys []types.IdentityKey) []byte {
 	keys := make([][]byte, len(unsortedKeys))
 	for i, key := range unsortedKeys {
-		keys[i] = key.Encode()
+		keys[i] = key.EncodePublicKey()
 	}
 	util.SortByteSlices(keys)
 	publicKey := util.FlattenByteSlices(keys)

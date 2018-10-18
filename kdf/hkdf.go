@@ -9,14 +9,14 @@ const hashOutputSize = 0x20
 
 type Version int
 
-func (v Version) iterationStartOffset() int {
+func (v Version) iterationOffset() int {
 	switch v {
 	case 2:
 		return 0
 	case 3:
 		return 1
 	default:
-		panic(fmt.Sprintf("Version %d does not exist", v))
+		panic(fmt.Sprintf("Unknown kdf version: %d", v))
 	}
 }
 
@@ -40,11 +40,11 @@ func (v Version) expand(prk, info []byte, outputSize int) []byte {
 	var mixin []byte
 	var result []byte
 
-	for i := v.iterationStartOffset(); i < iterations+v.iterationStartOffset(); i++ {
+	for i := 0; i < iterations; i++ {
 		mac := hmac.New(sha256.New, prk)
 		mac.Write(mixin)
 		mac.Write(info)
-		mac.Write([]byte{byte(i)})
+		mac.Write([]byte{byte(i + v.iterationOffset())})
 		stepResult := mac.Sum(nil)
 		result = append(result, stepResult...)
 		mixin = stepResult

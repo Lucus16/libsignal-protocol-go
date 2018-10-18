@@ -1,6 +1,6 @@
 package state
 
-import sig "github.com/Lucus16/libsignal-protocol-go"
+import "github.com/Lucus16/libsignal-protocol-go/types"
 import "github.com/Lucus16/libsignal-protocol-go/ecc"
 
 const (
@@ -12,20 +12,20 @@ type Direction int
 
 type IdentityKeyStore interface {
 	// Local persistent identity.
-	LocalKeyPair() ecc.KeyPair
+	LocalKeypair() ecc.Keypair
 
 	// Random number between 1 and 16380, generated at install time.
 	LocalRegistrationID() int
 
 	// Store a contact as trusted. Return true if an identity was replaced.
-	SaveIdentity(address sig.Address, key sig.IdentityKey) (replaced bool)
+	SaveIdentity(address types.Address, key types.IdentityKey) (replaced bool)
 
 	// The convention is that a key is trusted if no key is known for that
 	// address yet or if the key matches the key known for that address.
-	IsTrusted(address sig.Address, key sig.IdentityKey, direction Direction) bool
+	IsTrusted(address types.Address, key types.IdentityKey, direction Direction) bool
 
 	// Retrieve the key for an address.
-	GetIdentity(address sig.Address) sig.IdentityKey
+	GetIdentity(address types.Address) types.IdentityKey
 }
 
 type PrekeyStore interface {
@@ -36,11 +36,11 @@ type PrekeyStore interface {
 }
 
 type SessionStore interface {
-	LoadSession(address sig.Address) SessionRecord
+	LoadSession(address types.Address) SessionRecord
 	SubDeviceSessions(name string) []int32
-	StoreSession(address sig.Address, record SessionRecord)
-	ContainsSession(address sig.Address) bool
-	DeleteSession(address sig.Address)
+	StoreSession(address types.Address, record SessionRecord)
+	ContainsSession(address types.Address) bool
+	DeleteSession(address types.Address)
 	DeleteAllSessions(name string)
 }
 

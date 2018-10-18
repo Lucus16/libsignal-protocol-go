@@ -2,7 +2,7 @@
 package consistency
 
 import "github.com/Lucus16/libsignal-protocol-go/util"
-import sig "github.com/Lucus16/libsignal-protocol-go"
+import "github.com/Lucus16/libsignal-protocol-go/types"
 import "encoding/binary"
 import "crypto/sha512"
 
@@ -13,10 +13,10 @@ type Commitment struct {
 	serialized []byte
 }
 
-func NewCommitment(generation uint32, identityKeys []sig.IdentityKey) Commitment {
+func NewCommitment(generation uint32, identityKeys []types.IdentityKey) Commitment {
 	commitments := make([][]byte, len(identityKeys))
 	for i, key := range identityKeys {
-		commitments[i] = key.Encode()
+		commitments[i] = key.EncodePublicKey()
 	}
 	util.SortByteSlices(commitments)
 

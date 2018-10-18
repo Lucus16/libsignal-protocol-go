@@ -1,7 +1,7 @@
 package consistency
 
 import "github.com/Lucus16/libsignal-protocol-go/protocol"
-import sig "github.com/Lucus16/libsignal-protocol-go"
+import "github.com/Lucus16/libsignal-protocol-go/types"
 import "github.com/golang/protobuf/proto"
 
 type Message struct {
@@ -22,12 +22,12 @@ func (m Message) Serialized() []byte {
 	return m.serialized
 }
 
-func MessageFromKeyPair(commitment Commitment, keyPair sig.IdentityKeyPair) (result Message, err error) {
-	signatureBytes, err := keyPair.PrivateKey().CalculateVrfSignature(commitment.Serialized())
+func MessageFromKeypair(commitment Commitment, keypair types.IdentityKeypair) (result Message, err error) {
+	signatureBytes, err := keypair.CalculateVrfSignature(commitment.Serialized())
 	if err != nil {
 		return
 	}
-	vrfOutputBytes, err := keyPair.PublicKey().VerifyVrfSignature(commitment.Serialized(), signatureBytes)
+	vrfOutputBytes, err := keypair.VerifyVrfSignature(commitment.Serialized(), signatureBytes)
 	if err != nil {
 		return
 	}
@@ -54,7 +54,7 @@ func MessageFromKeyPair(commitment Commitment, keyPair sig.IdentityKeyPair) (res
 	}, nil
 }
 
-func MessageFromSerialized(commitment Commitment, serialized []byte, key sig.IdentityKey) (result Message, err error) {
+func MessageFromSerialized(commitment Commitment, serialized []byte, key types.IdentityKey) (result Message, err error) {
 	codeMessage := &protocol.DeviceConsistencyCodeMessage{}
 	err = proto.Unmarshal(serialized, codeMessage)
 	if err != nil {

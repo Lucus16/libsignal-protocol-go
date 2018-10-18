@@ -10,14 +10,14 @@ var chainKeySeed = []byte{0x02}
 type ChainKey struct {
 	kdf   kdf.Version
 	key   []byte
-	index int
+	index uint32
 }
 
 func (key ChainKey) Key() []byte {
 	return key.key
 }
 
-func (key ChainKey) Index() int {
+func (key ChainKey) Index() uint32 {
 	return key.index
 }
 

@@ -2,7 +2,7 @@
 package fingerprint
 
 import "github.com/Lucus16/libsignal-protocol-go/ecc"
-import sig "github.com/Lucus16/libsignal-protocol-go"
+import "github.com/Lucus16/libsignal-protocol-go/types"
 import "encoding/hex"
 import "testing"
 import "bytes"
@@ -27,11 +27,11 @@ func TestVectors(t *testing.T) {
 
 	generator := NewNumericGenerator(5200)
 	aliceFingerprint := generator.Generate(
-		"+14152222222", []sig.IdentityKey{alice},
-		"+14153333333", []sig.IdentityKey{bob})
+		"+14152222222", []types.IdentityKey{alice},
+		"+14153333333", []types.IdentityKey{bob})
 	bobFingerprint := generator.Generate(
-		"+14153333333", []sig.IdentityKey{bob},
-		"+14152222222", []sig.IdentityKey{alice})
+		"+14153333333", []types.IdentityKey{bob},
+		"+14152222222", []types.IdentityKey{alice})
 
 	if aliceFingerprint.DisplayableFingerprint().DisplayText() != displayableFingerprint ||
 		bobFingerprint.DisplayableFingerprint().DisplayText() != displayableFingerprint {
@@ -58,22 +58,22 @@ func TestVectors(t *testing.T) {
 }
 
 func TestMatchingFingerprints(t *testing.T) {
-	alice, err := ecc.GenerateKeyPair()
+	alice, err := ecc.GenerateKeypair()
 	if err != nil {
 		t.Error(err)
 	}
-	bob, err := ecc.GenerateKeyPair()
+	bob, err := ecc.GenerateKeypair()
 	if err != nil {
 		t.Error(err)
 	}
 
 	generator := NewNumericGenerator(1024)
 	aliceFingerprint := generator.Generate(
-		"+14152222222", []sig.IdentityKey{alice.PublicKey()},
-		"+14153333333", []sig.IdentityKey{bob.PublicKey()})
+		"+14152222222", []types.IdentityKey{alice},
+		"+14153333333", []types.IdentityKey{bob})
 	bobFingerprint := generator.Generate(
-		"+14153333333", []sig.IdentityKey{bob.PublicKey()},
-		"+14152222222", []sig.IdentityKey{alice.PublicKey()})
+		"+14153333333", []types.IdentityKey{bob},
+		"+14152222222", []types.IdentityKey{alice})
 
 	if aliceFingerprint.DisplayableFingerprint().DisplayText() !=
 		bobFingerprint.DisplayableFingerprint().DisplayText() {

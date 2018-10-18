@@ -2,25 +2,25 @@
 package consistency
 
 import "github.com/Lucus16/libsignal-protocol-go/util"
-import sig "github.com/Lucus16/libsignal-protocol-go"
+import "github.com/Lucus16/libsignal-protocol-go/types"
 import "github.com/Lucus16/libsignal-protocol-go/ecc"
 import "testing"
 import "bytes"
 
 func TestConsistency(t *testing.T) {
-	devices := make([]sig.IdentityKeyPair, 3)
+	devices := make([]types.IdentityKeypair, 3)
 	for i := range devices {
-		device, err := ecc.GenerateKeyPair()
+		device, err := ecc.GenerateKeypair()
 		if err != nil {
 			t.Error(err)
 		}
 		devices[i] = device
 	}
 
-	keyList := []sig.IdentityKey{
-		devices[0].PublicKey(),
-		devices[1].PublicKey(),
-		devices[2].PublicKey(),
+	keyList := []types.IdentityKey{
+		devices[0],
+		devices[1],
+		devices[2],
 	}
 
 	commitments := make([]Commitment, 3)
@@ -36,7 +36,7 @@ func TestConsistency(t *testing.T) {
 
 	messages := make([]Message, 3)
 	for i := range messages {
-		message, err := MessageFromKeyPair(commitments[0], devices[i])
+		message, err := MessageFromKeypair(commitments[0], devices[i])
 		if err != nil {
 			t.Error(err)
 		}
@@ -45,8 +45,7 @@ func TestConsistency(t *testing.T) {
 
 	receivedMessages := make([]Message, 3)
 	for i := range receivedMessages {
-		message, err := MessageFromSerialized(commitments[0], messages[i].Serialized(),
-			devices[i].PublicKey())
+		message, err := MessageFromSerialized(commitments[0], messages[i].Serialized(), devices[i])
 		if err != nil {
 			t.Error(err)
 		}

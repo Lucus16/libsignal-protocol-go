@@ -14,11 +14,11 @@ func TestChainKeyDerivationV2(t *testing.T) {
 	nextChainKey, _ := hex.DecodeString("28e8f8fee54b801eef7c5cfb2f17f32c7b334485bbb70fac6ec10342a246d15d")
 	chainKey := ChainKey{kdf.Version(2), seed, 0}
 
-	if !bytes.Equal(chainKey.MessageKeys().CipherKey(), messageKey) {
+	if !bytes.Equal(chainKey.MessageKeys().CipherKey, messageKey) {
 		t.Errorf("Cipher key doesn't match message key.")
 	}
 
-	if !bytes.Equal(chainKey.MessageKeys().MacKey(), macKey) {
+	if !bytes.Equal(chainKey.MessageKeys().MACKey, macKey) {
 		t.Errorf("Message key doesn't match.")
 	}
 
@@ -34,11 +34,11 @@ func TestChainKeyDerivationV3(t *testing.T) {
 	nextChainKey, _ := hex.DecodeString("28e8f8fee54b801eef7c5cfb2f17f32c7b334485bbb70fac6ec10342a246d15d")
 	chainKey := ChainKey{kdf.Version(3), seed, 0}
 
-	if !bytes.Equal(chainKey.MessageKeys().CipherKey(), messageKey) {
+	if !bytes.Equal(chainKey.MessageKeys().CipherKey, messageKey) {
 		t.Errorf("Cipher key doesn't match message key.")
 	}
 
-	if !bytes.Equal(chainKey.MessageKeys().MacKey(), macKey) {
+	if !bytes.Equal(chainKey.MessageKeys().MACKey, macKey) {
 		t.Errorf("Message key doesn't match.")
 	}
 

@@ -7,37 +7,28 @@ type PrekeyRecord = PrekeyRecordStructure
 type SessionRecord = SessionStructure
 type SignedPrekeyRecord = SignedPrekeyRecordStructure
 
-func NewPrekeyRecord(id uint32, keyPair ecc.KeyPair) PrekeyRecordStructure {
-	return PrekeyRecordStructure{
+func NewPrekeyRecord(id uint32, keypair ecc.Keypair) PrekeyRecord {
+	return PrekeyRecord{
 		Id:         &id,
-		PublicKey:  keyPair.PublicKey().Encode(),
-		PrivateKey: keyPair.PrivateKey().Encode(),
+		PublicKey:  keypair.EncodePublicKey(),
+		PrivateKey: keypair.EncodePrivateKey(),
 	}
 }
 
-func (r PrekeyRecordStructure) GetKeyPair() (keyPair ecc.KeyPair, err error) {
-	publicKey, err := ecc.DecodePublicKey(r.PublicKey)
-	if err != nil {
-		return
-	}
-
-	privateKey, err := ecc.DecodePrivateKey(r.PrivateKey)
-	if err != nil {
-		return
-	}
-
-	return ecc.NewKeyPair(privateKey, publicKey), nil
+func (r PrekeyRecord) GetKeypair() (keypair ecc.Keypair, err error) {
+	return ecc.DecodeKeypair(r.PrivateKey, r.PublicKey)
 }
 
-func (r PrekeyRecord) setSenderChain(senderRatchetKeyPair ecc.KeyPair, chainKey ratchet.ChainKey) {
+func (r PrekeyRecord) setSenderChain(senderRatchetKeypair ecc.Keypair, chainKey ratchet.ChainKey) {
+	index := chainKey.Index()
 	chainKeyStructure := SessionStructure_Chain_ChainKey{
-		Index: chainKey.Index(),
+		Index: &index,
 		Key:   chainKey.Key(),
 	}
 
 	senderChain := SessionStructure_Chain{
-		SenderRatchetKey:        senderRatchetKeyPair.PublicKey().Encode(),
-		SenderRatchetKeyPrivate: senderRatchetKeyPair.PrivateKey().Encode(),
+		SenderRatchetKey:        senderRatchetKeypair.EncodePublicKey(),
+		SenderRatchetKeyPrivate: senderRatchetKeypair.EncodePrivateKey(),
 		ChainKey:                &chainKeyStructure,
 	}
 

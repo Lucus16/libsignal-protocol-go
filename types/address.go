@@ -1,4 +1,4 @@
-package libsignal
+package types
 
 import "fmt"
 
