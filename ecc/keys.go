@@ -1,20 +1,19 @@
-// Translation of ecc/EC{KeyPair,{Private,Public}Key}.java
 package ecc
 
 type PrivateKey interface {
-	Encode() (data []byte)
-	CalculateAgreement(publicKey PublicKey) (agreement []byte, err error)
-	CalculateSignature(message []byte) (signature []byte, err error)
-	CalculateVrfSignature(message []byte) (signature []byte, err error)
+	EncodePrivateKey() []byte
+	CalculateAgreement(publicKey PublicKey) ([]byte, error)
+	CalculateSignature(message []byte) ([]byte, error)
+	CalculateVrfSignature(message []byte) ([]byte, error)
 }
 
 type PublicKey interface {
-	Encode() (data []byte)
+	EncodePublicKey() []byte
 	VerifySignature(message []byte, signature []byte) (ok bool, err error)
 	VerifyVrfSignature(message []byte, signature []byte) (vrfOutput []byte, err error)
 }
 
-type KeyPair interface {
-	PrivateKey() PrivateKey
-	PublicKey() PublicKey
+type Keypair interface {
+	PrivateKey
+	PublicKey
 }

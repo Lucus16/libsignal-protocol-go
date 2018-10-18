@@ -1,45 +1,36 @@
-// Translation of ecc/DjbEC{Private,Public}Key.java
 package ecc
 
 import "github.com/Lucus16/curve25519-go"
+
 import "fmt"
 
 const djbType = 5
-const djbKeyLen = 0x20
 
 type djbPublicKey struct {
 	curve.PublicKey
 }
 
-type djbPrivateKey struct {
+type djbKeypair struct {
 	curve.PrivateKey
+	djbPublicKey
 }
 
-type djbKeyPair struct {
-	privateKey djbPrivateKey
-	publicKey  djbPublicKey
-}
-
-func (key djbPublicKey) Encode() []byte {
+func (key djbPublicKey) EncodePublicKey() []byte {
 	return append([]byte{djbType}, key.PublicKey...)
 }
 
-func (key djbPrivateKey) Encode() []byte {
-	return key.PrivateKey
+func (key djbKeypair) EncodePrivateKey() []byte {
+	return append([]byte{}, key.PrivateKey...)
 }
 
-func (privateKey djbPrivateKey) CalculateAgreement(publicKey PublicKey) (agreement []byte, err error) {
-	djbKey, ok := publicKey.(djbPublicKey)
-	if !ok {
-		return nil, fmt.Errorf("Key type mismatch")
+func (keypair djbKeypair) CalculateAgreement(publicKey PublicKey) ([]byte, error) {
+	switch typedPublicKey := publicKey.(type) {
+	case djbPublicKey:
+		return keypair.PrivateKey.CalculateAgreement(typedPublicKey.PublicKey)
+	case djbKeypair:
+		return keypair.PrivateKey.CalculateAgreement(typedPublicKey.djbPublicKey.PublicKey)
+	default:
+		return nil, fmt.Errorf("Attempt to calculate agreement between %T and %T",
+			keypair.PrivateKey, publicKey)
 	}
-	return privateKey.PrivateKey.CalculateAgreement(djbKey.PublicKey)
-}
-
-func (keyPair djbKeyPair) PrivateKey() PrivateKey {
-	return keyPair.privateKey
-}
-
-func (keyPair djbKeyPair) PublicKey() PublicKey {
-	return keyPair.publicKey
 }
