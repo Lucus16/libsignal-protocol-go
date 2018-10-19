@@ -9,7 +9,6 @@ type PrivateKey interface {
 
 type PublicKey interface {
 	EncodePublicKey() []byte
-	LessThan(PublicKey) bool
 	VerifySignature(message []byte, signature []byte) (ok bool, err error)
 	VerifyVrfSignature(message []byte, signature []byte) (vrfOutput []byte, err error)
 }

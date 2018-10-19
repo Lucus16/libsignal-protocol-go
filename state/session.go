@@ -1,5 +1,6 @@
 package state
 
+import "github.com/Lucus16/libsignal-protocol-go/protocol"
 import "github.com/Lucus16/libsignal-protocol-go/ratchet"
 import "github.com/Lucus16/libsignal-protocol-go/ecc"
 
@@ -43,4 +44,8 @@ func (s *Session) addReceiverChain(senderRatchetKey ecc.PublicKey, chainKey ratc
 	chains = append([]*SessionStructure_Chain{}, chains...)
 	chains = append(chains, &chain)
 	s.ReceiverChains = chains
+}
+
+func (s *Session) decrypt(message protocol.SignalMessage) ([]byte, error) {
+	return nil, nil // TODO
 }

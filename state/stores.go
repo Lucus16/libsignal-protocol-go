@@ -35,6 +35,7 @@ type PrekeyStore interface {
 	RemovePrekey(id int)
 }
 
+// TODO: Implement SESSION_LOCK
 type SessionStore interface {
 	LoadSession(address types.Address) SessionRecord
 	SubDeviceSessions(name string) []int32

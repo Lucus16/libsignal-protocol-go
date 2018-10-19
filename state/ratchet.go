@@ -3,9 +3,10 @@ package state
 import "github.com/Lucus16/libsignal-protocol-go/ecc"
 import "github.com/Lucus16/libsignal-protocol-go/ratchet"
 import "github.com/Lucus16/libsignal-protocol-go/protocol"
+import "bytes"
 
 func Initialize(session *SessionStructure, params ratchet.Parameters) {
-	if params.OurBaseKey.LessThan(params.TheirBaseKey) {
+	if isAlice(params.OurBaseKey, params.TheirBaseKey) {
 		aliceInitialize(session, params.Alice())
 	} else {
 		bobInitialize(session, params.Bob())
@@ -52,4 +53,8 @@ func bobInitialize(session *SessionStructure, params ratchet.BobParameters) (err
 	session.setSenderChain(params.OurRatchetKey, chainKey)
 	session.RootKey = rootKey.Key()
 	return
+}
+
+func isAlice(ourKey, theirKey ecc.PublicKey) bool {
+	return bytes.Compare(ourKey.EncodePublicKey(), theirKey.EncodePublicKey()) < 0
 }
