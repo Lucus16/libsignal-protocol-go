@@ -12,25 +12,22 @@ func (rk RootKey) Key() []byte {
 	return rk.key
 }
 
-func (rk RootKey) CreateChain(theirKey ecc.PublicKey, ourKey ecc.Keypair) (newRootKey RootKey, newChainKey ChainKey, err error) {
+func (rk RootKey) CreateChain(ourKey ecc.Keypair, theirKey ecc.PublicKey) (RootKey, ChainKey, error) {
 	sharedSecret, err := ourKey.CalculateAgreement(theirKey)
 	if err != nil {
-		return
+		return RootKey{}, ChainKey{}, err
 	}
 
-	derivedSecretBytes := rk.kdf.DeriveSaltedSecrets(sharedSecret, rk.key, []byte("WhisperRatchet"), kdf.RootSecretsSize)
-	rootKey, chainKey := kdf.RootSecrets(derivedSecretBytes)
-
-	newRootKey = RootKey{rk.kdf, rootKey}
-	newChainKey = ChainKey{rk.kdf, chainKey, 0}
-
-	return
+	derivedSecret := rk.kdf.DeriveSaltedSecrets(sharedSecret, rk.key, []byte("WhisperRatchet"), 0x40)
+	newRootKey := RootKey{rk.kdf, derivedSecret[0x00:0x20]}
+	newChainKey := ChainKey{rk.kdf, derivedSecret[0x20:0x40], 0}
+	return newRootKey, newChainKey, nil
 }
 
-func CalculateDerivedKeys(masterSecret []byte) (rootKey RootKey, chainKey ChainKey) {
+func CalculateDerivedKeys(masterSecret []byte) (RootKey, ChainKey) {
 	kdf := kdf.Version(3)
 	derivedSecret := kdf.DeriveSecrets(masterSecret, []byte("WhisperText"), 0x40)
-	rootKey = RootKey{kdf, derivedSecret[0x00:0x20]}
-	chainKey = ChainKey{kdf, derivedSecret[0x20:0x40], 0}
-	return
+	rootKey := RootKey{kdf, derivedSecret[0x00:0x20]}
+	chainKey := ChainKey{kdf, derivedSecret[0x20:0x40], 0}
+	return rootKey, chainKey
 }

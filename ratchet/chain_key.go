@@ -1,6 +1,7 @@
 package ratchet
 
 import "github.com/Lucus16/libsignal-protocol-go/kdf"
+
 import "crypto/sha256"
 import "crypto/hmac"
 
@@ -27,13 +28,12 @@ func (key ChainKey) NextChainKey() ChainKey {
 
 func (key ChainKey) MessageKeys() MessageKeys {
 	inputKeyMaterial := key.getBaseMaterial(messageKeySeed)
-	keyMaterialBytes := key.kdf.DeriveSecrets(inputKeyMaterial, []byte("WhisperMessageKeys"), kdf.MessageSecretsSize)
-	cipherKey, macKey, initVector := kdf.MessageSecrets(keyMaterialBytes)
+	derivedSecret := key.kdf.DeriveSecrets(inputKeyMaterial, []byte("WhisperMessageKeys"), 0x50)
 	return MessageKeys{
-		cipherKey,
-		macKey,
-		initVector,
-		key.index,
+		CipherKey:  derivedSecret[0x00:0x20],
+		MACKey:     derivedSecret[0x20:0x40],
+		InitVector: derivedSecret[0x40:0x50],
+		Counter:    key.index,
 	}
 }
 

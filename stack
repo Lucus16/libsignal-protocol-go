@@ -1,8 +1,7 @@
+If I check that all keys are sane, maybe I can afford to panic if
+CalculateAgreement fails, simplifying a lot of code.
+
 I need to use android studio in order to find all uses of some functions to see
 if they can be simplified.
 
-Resolve ratchet imports state and state imports ratchet.
-
-Move ratchet types to a `types` package?
-
-- Working on ratchet.
+- Working on state.

@@ -2,6 +2,7 @@ package ecc
 
 import "github.com/Lucus16/curve25519-go"
 
+import "bytes"
 import "fmt"
 
 const djbType = 5
@@ -21,6 +22,17 @@ func (key djbPublicKey) EncodePublicKey() []byte {
 
 func (key djbKeypair) EncodePrivateKey() []byte {
 	return append([]byte{}, key.PrivateKey...)
+}
+
+func (key djbPublicKey) LessThan(other PublicKey) bool {
+	switch typedOther := other.(type) {
+	case djbPublicKey:
+		return bytes.Compare(key.PublicKey, typedOther.PublicKey) < 0
+	case djbKeypair:
+		return bytes.Compare(key.PublicKey, typedOther.djbPublicKey.PublicKey) < 0
+	default:
+		panic(fmt.Errorf("Attempt to compare %T and %T", key, other))
+	}
 }
 
 func (keypair djbKeypair) CalculateAgreement(publicKey PublicKey) ([]byte, error) {
