@@ -1,8 +1,8 @@
-// Translation of test/devices/DeviceConsistencyTest.java
-package consistency
+package protocol
 
-import "github.com/Lucus16/libsignal-protocol-go/util"
+import "github.com/Lucus16/libsignal-protocol-go/consistency"
 import "github.com/Lucus16/libsignal-protocol-go/types"
+import "github.com/Lucus16/libsignal-protocol-go/util"
 import "github.com/Lucus16/libsignal-protocol-go/ecc"
 import "testing"
 import "bytes"
@@ -23,10 +23,10 @@ func TestConsistency(t *testing.T) {
 		devices[2],
 	}
 
-	commitments := make([]Commitment, 3)
+	commitments := make([]consistency.Commitment, 3)
 	for i := range commitments {
 		util.InsecureShuffle(keyList)
-		commitments[i] = NewCommitment(1, keyList)
+		commitments[i] = consistency.NewCommitment(1, keyList)
 	}
 
 	if !bytes.Equal(commitments[0].Serialized(), commitments[1].Serialized()) ||
@@ -34,30 +34,30 @@ func TestConsistency(t *testing.T) {
 		t.Errorf("Shuffled commitments don't match.")
 	}
 
-	messages := make([]Message, 3)
+	messages := make([]ConsistencyMessage, 3)
 	for i := range messages {
-		message, err := MessageFromKeypair(commitments[0], devices[i])
+		message, err := NewConsistencyMessage(commitments[0], devices[i])
 		if err != nil {
 			t.Error(err)
 		}
 		messages[i] = message
 	}
 
-	receivedMessages := make([]Message, 3)
+	receivedMessages := make([]ConsistencyMessage, 3)
 	for i := range receivedMessages {
-		message, err := MessageFromSerialized(commitments[0], messages[i].Serialized(), devices[i])
+		message, err := DecodeConsistencyMessage(commitments[0], messages[i].Serialized(), devices[i])
 		if err != nil {
 			t.Error(err)
 		}
 		receivedMessages[i] = message
-		if !bytes.Equal(messages[i].Signature().VrfOutput(), message.Signature().VrfOutput()) {
+		if !bytes.Equal(messages[i].Signature().VRFOutput, message.Signature().VRFOutput) {
 			t.Errorf("Received vrfOutput doesn't match sent.")
 		}
 	}
 
 	codes := make([]string, 3)
 	for i := range codes {
-		codes[i] = GenerateCode(commitments[i], []Signature{
+		codes[i] = consistency.GenerateCode(commitments[i], []consistency.Signature{
 			messages[i].Signature(),
 			receivedMessages[(i+1)%3].Signature(),
 			receivedMessages[(i+2)%3].Signature(),

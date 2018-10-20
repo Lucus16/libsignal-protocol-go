@@ -1,4 +1,3 @@
-// Translation of devices/DeviceConsistencyCodeGenerator.java
 package consistency
 
 import "github.com/Lucus16/libsignal-protocol-go/fingerprint"
@@ -7,10 +6,15 @@ import "crypto/sha512"
 
 const codeVersion = 0
 
+type Signature struct {
+	Signature []byte
+	VRFOutput []byte
+}
+
 func GenerateCode(commitment Commitment, signatures []Signature) string {
 	sortedSignatures := make([][]byte, len(signatures))
 	for i, signature := range signatures {
-		sortedSignatures[i] = signature.VrfOutput()
+		sortedSignatures[i] = signature.VRFOutput
 	}
 	util.SortByteSlices(sortedSignatures)
 
