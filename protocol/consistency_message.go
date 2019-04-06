@@ -6,30 +6,18 @@ import "github.com/Lucus16/libsignal-protocol-go/types"
 import "github.com/golang/protobuf/proto"
 
 type ConsistencyMessage struct {
-	signature  consistency.Signature
-	generation uint32
-	serialized []byte
-}
-
-func (m ConsistencyMessage) Signature() consistency.Signature {
-	return m.signature
-}
-
-func (m ConsistencyMessage) Generation() uint32 {
-	return m.generation
-}
-
-func (m ConsistencyMessage) Serialized() []byte {
-	return m.serialized
+	Signature  consistency.Signature
+	Generation uint32
+	Serialized []byte
 }
 
 func NewConsistencyMessage(commitment consistency.Commitment, keypair types.IdentityKeypair) (ConsistencyMessage, error) {
-	signatureBytes, err := keypair.CalculateVrfSignature(commitment.Serialized())
+	signatureBytes, err := keypair.CalculateVrfSignature(commitment.Serialized)
 	if err != nil {
 		return ConsistencyMessage{}, err
 	}
 
-	vrfOutputBytes, err := keypair.VerifyVrfSignature(commitment.Serialized(), signatureBytes)
+	vrfOutputBytes, err := keypair.VerifyVrfSignature(commitment.Serialized, signatureBytes)
 	if err != nil {
 		return ConsistencyMessage{}, err
 	}
@@ -39,7 +27,7 @@ func NewConsistencyMessage(commitment consistency.Commitment, keypair types.Iden
 		VRFOutput: vrfOutputBytes,
 	}
 
-	generation := commitment.Generation()
+	generation := commitment.Generation
 	codeMessage := protos.DeviceConsistencyCodeMessage{
 		Generation: &generation,
 		Signature:  signatureBytes,
@@ -51,9 +39,9 @@ func NewConsistencyMessage(commitment consistency.Commitment, keypair types.Iden
 	}
 
 	return ConsistencyMessage{
-		generation: commitment.Generation(),
-		signature:  signature,
-		serialized: protoBytes,
+		Generation: commitment.Generation,
+		Signature:  signature,
+		Serialized: protoBytes,
 	}, nil
 }
 
@@ -64,17 +52,17 @@ func DecodeConsistencyMessage(commitment consistency.Commitment, serialized []by
 	if err != nil {
 		return ConsistencyMessage{}, err
 	}
-	vrfOutputBytes, err := key.VerifyVrfSignature(commitment.Serialized(), codeMessage.Signature)
+	vrfOutputBytes, err := key.VerifyVrfSignature(commitment.Serialized, codeMessage.Signature)
 	if err != nil {
 		return ConsistencyMessage{}, err
 	}
 
 	return ConsistencyMessage{
-		generation: *codeMessage.Generation,
-		signature: consistency.Signature{
+		Generation: *codeMessage.Generation,
+		Signature: consistency.Signature{
 			Signature: codeMessage.Signature,
 			VRFOutput: vrfOutputBytes,
 		},
-		serialized: serialized,
+		Serialized: serialized,
 	}, nil
 }

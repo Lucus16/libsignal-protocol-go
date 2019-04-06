@@ -29,8 +29,8 @@ func TestConsistency(t *testing.T) {
 		commitments[i] = consistency.NewCommitment(1, keyList)
 	}
 
-	if !bytes.Equal(commitments[0].Serialized(), commitments[1].Serialized()) ||
-		!bytes.Equal(commitments[1].Serialized(), commitments[2].Serialized()) {
+	if !bytes.Equal(commitments[0].Serialized, commitments[1].Serialized) ||
+		!bytes.Equal(commitments[1].Serialized, commitments[2].Serialized) {
 		t.Errorf("Shuffled commitments don't match.")
 	}
 
@@ -45,12 +45,12 @@ func TestConsistency(t *testing.T) {
 
 	receivedMessages := make([]ConsistencyMessage, 3)
 	for i := range receivedMessages {
-		message, err := DecodeConsistencyMessage(commitments[0], messages[i].Serialized(), devices[i])
+		message, err := DecodeConsistencyMessage(commitments[0], messages[i].Serialized, devices[i])
 		if err != nil {
 			t.Error(err)
 		}
 		receivedMessages[i] = message
-		if !bytes.Equal(messages[i].Signature().VRFOutput, message.Signature().VRFOutput) {
+		if !bytes.Equal(messages[i].Signature.VRFOutput, message.Signature.VRFOutput) {
 			t.Errorf("Received vrfOutput doesn't match sent.")
 		}
 	}
@@ -58,9 +58,9 @@ func TestConsistency(t *testing.T) {
 	codes := make([]string, 3)
 	for i := range codes {
 		codes[i] = consistency.GenerateCode(commitments[i], []consistency.Signature{
-			messages[i].Signature(),
-			receivedMessages[(i+1)%3].Signature(),
-			receivedMessages[(i+2)%3].Signature(),
+			messages[i].Signature,
+			receivedMessages[(i+1)%3].Signature,
+			receivedMessages[(i+2)%3].Signature,
 		})
 	}
 

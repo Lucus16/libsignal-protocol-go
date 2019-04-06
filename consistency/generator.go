@@ -20,7 +20,7 @@ func GenerateCode(commitment Commitment, signatures []Signature) string {
 
 	digest := sha512.New()
 	util.WriteShort(digest, codeVersion)
-	digest.Write(commitment.Serialized())
+	digest.Write(commitment.Serialized)
 	util.WriteByteSlices(digest, sortedSignatures)
 
 	hash := digest.Sum(nil)

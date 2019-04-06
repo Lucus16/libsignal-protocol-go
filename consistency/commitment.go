@@ -8,8 +8,8 @@ import "crypto/sha512"
 const commitmentVersion = "DeviceConsistencyCommitment_V0"
 
 type Commitment struct {
-	generation uint32
-	serialized []byte
+	Generation uint32
+	Serialized []byte
 }
 
 func NewCommitment(generation uint32, identityKeys []types.IdentityKey) Commitment {
@@ -28,12 +28,4 @@ func NewCommitment(generation uint32, identityKeys []types.IdentityKey) Commitme
 		generation,
 		digest.Sum(nil),
 	}
-}
-
-func (c Commitment) Serialized() []byte {
-	return c.serialized
-}
-
-func (c Commitment) Generation() uint32 {
-	return c.generation
 }
