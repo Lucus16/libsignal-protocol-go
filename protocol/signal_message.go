@@ -61,18 +61,18 @@ func DecodeSignalMessage(serialized []byte) (SignalMessage, error) {
 		return SignalMessage{}, errors.InvalidVersion(version)
 	}
 
-	var protoMessage protos.SignalMessage
-	err := proto.Unmarshal(serialized[1:macStart], &protoMessage)
+	var message protos.SignalMessage
+	err := proto.Unmarshal(serialized[1:macStart], &message)
 	if err != nil {
 		return SignalMessage{}, err
 	}
 
-	if protoMessage.Ciphertext == nil || protoMessage.Counter == nil ||
-		protoMessage.RatchetKey == nil {
+	if message.Ciphertext == nil || message.Counter == nil ||
+		message.RatchetKey == nil {
 		return SignalMessage{}, errors.InvalidMessage("Incomplete message")
 	}
 
-	senderRatchetKey, err := ecc.DecodePublicKey(protoMessage.GetRatchetKey())
+	senderRatchetKey, err := ecc.DecodePublicKey(message.GetRatchetKey())
 	if err != nil {
 		return SignalMessage{}, err
 	}
@@ -81,9 +81,9 @@ func DecodeSignalMessage(serialized []byte) (SignalMessage, error) {
 		serialized:       serialized,
 		version:          version,
 		senderRatchetKey: senderRatchetKey,
-		counter:          protoMessage.GetCounter(),
-		previousCounter:  protoMessage.GetPreviousCounter(),
-		ciphertext:       protoMessage.GetCiphertext(),
+		counter:          message.GetCounter(),
+		previousCounter:  message.GetPreviousCounter(),
+		ciphertext:       message.GetCiphertext(),
 	}, nil
 }
 

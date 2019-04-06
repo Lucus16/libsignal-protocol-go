@@ -52,6 +52,7 @@ func DecodeConsistencyMessage(commitment consistency.Commitment, serialized []by
 	if err != nil {
 		return ConsistencyMessage{}, err
 	}
+
 	vrfOutputBytes, err := key.VerifyVrfSignature(commitment.Serialized, codeMessage.Signature)
 	if err != nil {
 		return ConsistencyMessage{}, err
