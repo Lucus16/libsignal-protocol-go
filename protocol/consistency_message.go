@@ -8,7 +8,7 @@ import "github.com/golang/protobuf/proto"
 type ConsistencyMessage struct {
 	Signature  consistency.Signature
 	Generation uint32
-	Serialized []byte
+	serialized []byte
 }
 
 func NewConsistencyMessage(commitment consistency.Commitment, keypair types.IdentityKeypair) (ConsistencyMessage, error) {
@@ -41,7 +41,7 @@ func NewConsistencyMessage(commitment consistency.Commitment, keypair types.Iden
 	return ConsistencyMessage{
 		Generation: commitment.Generation,
 		Signature:  signature,
-		Serialized: protoBytes,
+		serialized: protoBytes,
 	}, nil
 }
 
@@ -64,6 +64,10 @@ func DecodeConsistencyMessage(commitment consistency.Commitment, serialized []by
 			Signature: codeMessage.Signature,
 			VRFOutput: vrfOutputBytes,
 		},
-		Serialized: serialized,
+		serialized: serialized,
 	}, nil
+}
+
+func (m ConsistencyMessage) Serialize() []byte {
+	return m.serialized
 }

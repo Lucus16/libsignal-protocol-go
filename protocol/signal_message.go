@@ -12,11 +12,11 @@ import "bytes"
 const macLength = 8
 
 type SignalMessage struct {
-	version          byte
-	senderRatchetKey ecc.PublicKey
-	counter          uint32
-	previousCounter  uint32
-	ciphertext       []byte
+	Version          byte
+	SenderRatchetKey ecc.PublicKey
+	Counter          uint32
+	PreviousCounter  uint32
+	Ciphertext       []byte
 	serialized       []byte
 }
 
@@ -41,12 +41,12 @@ func NewSignalMessage(messageVersion byte, macKey []byte,
 	serialized = append(serialized, mac...)
 
 	return SignalMessage{
-		version:          version,
+		Version:          version,
 		serialized:       serialized,
-		senderRatchetKey: senderRatchetKey,
-		counter:          counter,
-		previousCounter:  previousCounter,
-		ciphertext:       ciphertext,
+		SenderRatchetKey: senderRatchetKey,
+		Counter:          counter,
+		PreviousCounter:  previousCounter,
+		Ciphertext:       ciphertext,
 	}, nil
 }
 
@@ -79,11 +79,11 @@ func DecodeSignalMessage(serialized []byte) (SignalMessage, error) {
 
 	return SignalMessage{
 		serialized:       serialized,
-		version:          version,
-		senderRatchetKey: senderRatchetKey,
-		counter:          message.GetCounter(),
-		previousCounter:  message.GetPreviousCounter(),
-		ciphertext:       message.GetCiphertext(),
+		Version:          version,
+		SenderRatchetKey: senderRatchetKey,
+		Counter:          message.GetCounter(),
+		PreviousCounter:  message.GetPreviousCounter(),
+		Ciphertext:       message.GetCiphertext(),
 	}, nil
 }
 
@@ -104,4 +104,8 @@ func getMAC(sender, receiver types.IdentityKey, macKey []byte, data []byte) []by
 	mac.Write(data)
 	fullMac := mac.Sum(nil)
 	return fullMac[:macLength]
+}
+
+func (m SignalMessage) Serialize() []byte {
+	return m.serialized
 }

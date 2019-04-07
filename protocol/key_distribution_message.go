@@ -10,7 +10,7 @@ type KeyDistributionMessage struct {
 	Iteration  uint32
 	ChainKey   []byte
 	SigningKey ecc.PublicKey
-	Serialized []byte
+	serialized []byte
 }
 
 func NewKeyDistributionMessage(id uint32, iteration uint32, chainKey []byte,
@@ -32,7 +32,7 @@ func NewKeyDistributionMessage(id uint32, iteration uint32, chainKey []byte,
 		Iteration:  iteration,
 		ChainKey:   chainKey,
 		SigningKey: signingKey,
-		Serialized: append([]byte{version}, protoBytes...),
+		serialized: append([]byte{version}, protoBytes...),
 	}, nil
 }
 
@@ -59,10 +59,14 @@ func DecodeKeyDistributionMessage(serialized []byte) (KeyDistributionMessage, er
 	}
 
 	return KeyDistributionMessage{
-		Serialized: serialized,
+		serialized: serialized,
 		Id:         *message.Id,
 		Iteration:  *message.Iteration,
 		ChainKey:   message.ChainKey,
 		SigningKey: signingKey,
 	}, nil
+}
+
+func (m KeyDistributionMessage) Serialize() []byte {
+	return m.serialized
 }
